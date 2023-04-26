@@ -1,0 +1,78 @@
+
+mysql> USE testdatabase
+Database changed
+
+mysql> CREATE TABLE human (
+    -> id INT NOT NULL AUTO_INCREMENT,
+    -> name VARCHAR(50) NOT NULL,
+    -> age INT NOT NULL,
+    -> email VARCHAR(50) NOT NULL,
+    -> PRIMARY KEY (id)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE addresses (
+    -> id INT NOT NULL AUTO_INCREMENT,
+    -> human_id INT NOT NULL,
+    -> street VARCHAR(50) NOT NULL,
+    -> city VARCHAR(50) NOT NULL,
+    -> county VARCHAR(50) NOT NULL,
+    -> PRIMARY KEY (id),
+    -> FOREIGN KEY (human_id) REFERENCES human(id)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+
+mysql> SHOW tables;
++------------------------+
+| Tables_in_testdatabase |
++------------------------+
+| addresses              |
+| human                  |
++------------------------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT * FROM human;
+Empty set (0.00 sec)
+
+mysql> INSERT INTO human (name, age, email) VALUE
+    -> ('JOHN', 25, 'john@example.com'),
+    -> ('JANE', 30, 'jane@example.com');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO addresses(human_id, street, city, county) VALUES
+    -> (1, '123 Main St', 'anytown', 'Anycounty'),
+    -> (2, '456 Oak St', 'sometown', 'Somecounty');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> UPDATE human SET name='ellen' , age = 20, email = 'ellen@atu.ie' WHERE email='john@example.com';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+mysql> SELECT * FROM human ;
++----+-------+-----+------------------+
+| id | name  | age | email            |
++----+-------+-----+------------------+
+|  1 | ellen |  20 | ellen@atu.ie     |
+|  2 | JANE  |  30 | jane@example.com |
++----+-------+-----+------------------+
+2 rows in set (0.00 sec)
+
+mysql> UPDATE addresses
+    -> SET street = 'college lane', city='tullamore', county = 'offaly'
+    -> WHERE human_id = (SELECT id FROM human WHERE email = 'ellen@atu.ie');
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM human p JOIN addresses a WHERE p.id = a.human_id;
++----+-------+-----+------------------+----+----------+--------------+-----------+------------+
+| id | name  | age | email            | id | human_id | street       | city      | county     |
++----+-------+-----+------------------+----+----------+--------------+-----------+------------+
+|  1 | ellen |  20 | ellen@atu.ie     |  1 |        1 | college lane | tullamore | offaly     |
+|  2 | JANE  |  30 | jane@example.com |  2 |        2 | 456 Oak St   | sometown  | Somecounty |
++----+-------+-----+------------------+----+----------+--------------+-----------+------------+
+2 rows in set (0.00 sec)
+
